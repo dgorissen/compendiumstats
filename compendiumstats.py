@@ -253,5 +253,5 @@ class CompendiumStats(object):
     
 
 if __name__ == '__main__':
-    c = CompendiumStats(user="compendium", pwd="compendium", host="decodevm.soton.ac.uk", db="decode_1272903597815");
+    c = CompendiumStats(user="xx", pwd="xx", host="xx", db="xx");
     c.gen_stats(".")
