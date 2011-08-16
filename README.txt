@@ -1,5 +1,7 @@
-This is a simple Python class that generates some statistics about the Nodes in a compendium database.
-(http://compendium.open.ac.uk/institute/about.htm).  Some of the statistics it returns include:
+Random snippets relating to interfacing with Compendium (http://compendium.open.ac.uk/institute/about.htm).  
+Initially written as proof of principle examples.
+
+The included Python class generates some statistics about the Nodes in a compendium database:
 
     # How many non-deleted nodes
     # How many nodes of each type
@@ -11,3 +13,4 @@ This is a simple Python class that generates some statistics about the Nodes in 
 
 These are saved as a CSV file (which will be appended if it already exists) and plotted using Matplotlib.
 
+The php file does something similar but provides a very simple web UI.

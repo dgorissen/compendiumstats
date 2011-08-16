@@ -1,0 +1,41 @@
+body
+{
+	line-height: 1.6em;
+}
+
+#hor-zebra
+{
+	margin: 45px;
+	text-align: left;
+	border-collapse: collapse;
+}
+#hor-zebra th
+{
+	font-weight: bold;
+	padding: 8px;
+	background: #b9c9fe;
+	border-top: 4px solid #aabcfe;
+	border-bottom: 1px solid #fff;
+	color: #039;
+}
+
+#hor-zebra tr:hover td
+{
+	background: #d0dafd;
+	color: #339;
+}
+
+#hor-zebra td
+{
+	padding: 8px;
+
+}
+#hor-zebra .odd
+{
+	background: #e8edff; 
+}
+
+#hor-zebra .even
+{
+	background: #ffffff; 
+}
