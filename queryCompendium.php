@@ -1,9 +1,9 @@
+<?php
 /*
   Simple proof-of-principle web interface to the compendium database
   Allows the user run predifined queries of intrest
 */
 
-<?php
 date_default_timezone_set('Europe/London');
 //===========================================================================================
 //== Database stuff
