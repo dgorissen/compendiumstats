@@ -20,22 +20,54 @@ class CompendiumStats(object):
     """Connects to the compendium MySQL database and retrieves some statistics on the nodes it contains
        Compendium must be configured to use the MySQL backend for this to work."""
     
-    def __init__(self, user=None, pwd=None, host=None, db=None):
+    def __init__(self, user=None, pwd=None, host=None):
         super(CompendiumStats,self).__init__()
-        
-        # connect to the mysql database
-        self.conn = MySQLdb.connect (host = host,
-                                user = user,
-                                passwd = pwd,
+
+        self.user = user
+        self.pwd = pwd
+        self.host = host
+    
+    def connect(self,db):        
+        """connect to the the specified database"""
+        conn = MySQLdb.connect (host = self.host,
+                                user = self.user,
+                                passwd = self.pwd,
                                 db = db)
-    
-    
-    def gen_stats(self,result_dir):
-        """Generate csv & png files for a number of statistics about the nodes in the compendium database"""
-        self.result_dir = result_dir
         
-        cursor = self.conn.cursor()
+        return conn
+        
+    def list_projects(self):
+        """Return a project name -> database name dictionary"""
+        
+        conn = self.connect("compendium")
+        cursor = conn.cursor()
+        cursor.execute("SELECT ProjectName,DatabaseNAme FROM project")
+
+        proj = []
+        for row in cursor:
+            proj.append( (row[0],row[1]) )
+        
+        conn.close()
+        
+        return dict(proj)
     
+    def gen_stats(self,project,result_dir,projectdb=None):
+        """Generate csv & png files for a number of statistics about the nodes in the compendium database"""
+        
+        # resolve the project db
+        if not projectdb:
+            projs = self.list_projects()
+            projectdb = projs[project]
+
+        # connect to the project db
+        self.conn = self.connect(projectdb)
+        cursor = self.conn.cursor()
+        
+        # set the result dir, creating it if necessary
+        self.result_dir = os.path.join(result_dir,project)
+        if not os.path.exists(self.result_dir):
+            os.makedirs(self.result_dir)
+        
         # Get some DB stats, generate output in different files
      
         # Build Node type map
@@ -222,14 +254,17 @@ class CompendiumStats(object):
             
             fig = mp.figure(figsize=(12,8))
             
-            # This if is triggered if the file only contains one data row,
-            # numpy then reads this as a column vector, so reshape it into a proper
-            # matrix (?) with one row (what the plotting code expects)
-            if(r.ndim == 1):
-                r = reshape(r,(1,r.size))
-                
-            for i in range(1,r.shape[2-1]):
-                ax = mp.plot_date(r[:,0],r[:,i],label=labels[i],xdate=True,linestyle='-',marker=fmarkers[i%len(fmarkers)],color=colors[i%len(colors)])
+            #dont plot anything if there is only one column
+            if(r.ndim == 0 or len(labels) < 2):
+                continue
+            # if the file only contains one row
+            elif(r.ndim == 1):
+                #r = reshape(r,(1,r.size))
+                for i in range(1,len(r)):
+                    ax = mp.plot_date(r[0],r[i],label=labels[i],xdate=True,linestyle='-',marker=fmarkers[i%len(fmarkers)],color=colors[i%len(colors)])
+            else:
+                for i in range(1,r.shape[2-1]):
+                    ax = mp.plot_date(r[:,0],r[:,i],label=labels[i],xdate=True,linestyle='-',marker=fmarkers[i%len(fmarkers)],color=colors[i%len(colors)])
             
             mp.xlabel('Time')
             mp.legend(labels[1:],loc='upper left')
@@ -253,5 +288,10 @@ class CompendiumStats(object):
     
 
 if __name__ == '__main__':
-    c = CompendiumStats(user="xx", pwd="xx", host="xx", db="xx");
-    c.gen_stats(".")
+    c = CompendiumStats(user="xx", pwd="xx", host="xx");
+
+    # generate stats for every project in the database
+    projs = c.list_projects()
+    for name,db in projs.iteritems():
+        c.gen_stats(name, ".", projectdb=db)
+
